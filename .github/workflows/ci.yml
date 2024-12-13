@@ -36,7 +36,7 @@ jobs:
           command: install-rustup
           toolchain: nightly
           target: ${{ matrix.target }}
-          profile: minimal
+          profile: default
           default: true
       - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
         name: Cargo clippy
@@ -52,3 +52,10 @@ jobs:
           toolchain: nightly
           annotations: true
           args: --target=${{ matrix.target }}
+      - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
+        name: Cargo fmt
+        with:
+          command: cargo fmt
+          toolchain: nightly
+          annotations: true
+          args: --check
