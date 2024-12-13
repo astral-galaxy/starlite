@@ -1,0 +1,54 @@
+name: Rust
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        target:
+          - aarch64-unknown-uefi
+          - i686-unknown-uefi
+          - x86_64-unknown-uefi
+        os:
+          - ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
+        name: Cargo cache
+        with:
+          command: cache
+          min-recache-crates: 1m
+          min-recache-git-repos: 12h
+          min-recache-indices: 7d
+      - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
+        name: Install Rustup
+        with:
+          command: install-rustup
+          toolchain: nightly
+          target: ${{ matrix.target }}
+          profile: minimal
+          default: true
+      - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
+        name: Cargo clippy
+        with:
+          command: cargo clippy
+          toolchain: nightly
+          annotations: true
+          args: --target=${{ matrix.target }}
+      - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
+        name: Cargo test
+        with:
+          command: cargo test
+          toolchain: nightly
+          annotations: true
+          args: --target=${{ matrix.target }}
