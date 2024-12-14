@@ -13,23 +13,34 @@ jobs:
   build:
     strategy:
       matrix:
-        target:
-          - aarch64-unknown-uefi
-          - i686-unknown-uefi
-          - x86_64-unknown-uefi
-        os:
-          - ubuntu-latest
+        include:
+          - target: aarch64-unknown-uefi
+            qemu: qemu-system-aarch64
+          - target: x86_64-unknown-uefi
+            qemu: qemu-system-x86_64
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        run: |
+          sudo apt update
+          sudo apt install -y ovmf ${{ matrix.qemu }}
+
+      # Install qemu-efi-aarch64 if the target is aarch64-unknown-uefi
+      - if: matrix.target == 'aarch64-unknown-uefi'
+        run: sudo apt install -y qemu-efi-aarch64
+
+      # Install qemu-efi-i386 if the target is i686-unknown-uefi
+      - if: matrix.target == 'i686-unknown-uefi'
+        run: sudo apt install -y qemu-efi-i386
+
       # Install Just and qemu
       - run: \
-          wget -qO - 'https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null
-          echo "deb [arch=all,$(dpkg --print-architecture) signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
-          sudo apt update
-          sudo apt install -y just qemu ovmf
+          git clone https://mpr.makedeb.org/just
+          cd just
+          makedeb -si
 
       # Restore Cargo cache
       - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
