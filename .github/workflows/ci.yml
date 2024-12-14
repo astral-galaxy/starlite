@@ -40,6 +40,7 @@ jobs:
       # Install Just and qemu
       - run: |
           set -eux; \
+          bash -c "$(wget -qO - 'https://shlink.makedeb.org/install')"; \
           git clone https://mpr.makedeb.org/just; \
           cd just; \
           makedeb -si
