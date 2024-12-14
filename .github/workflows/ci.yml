@@ -10,6 +10,27 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
+        name: Install Rustup
+        with:
+          command: install-rustup
+          toolchain: nightly
+          target: x86_64-unknown-linux-gnu
+          profile: default
+          default: true
+      - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
+        name: Cargo fmt
+        with:
+          command: cargo fmt
+          toolchain: nightly
+          annotations: true
+          args: --check
+
   build:
     strategy:
       fail-fast: false
@@ -77,10 +98,3 @@ jobs:
           toolchain: nightly
           annotations: true
           args: --target=${{ matrix.target }}
-      - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
-        name: Cargo fmt
-        with:
-          command: cargo fmt
-          toolchain: nightly
-          annotations: true
-          args: --check
