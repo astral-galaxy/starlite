@@ -12,12 +12,13 @@ env:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - target: aarch64-unknown-uefi
             qemu: qemu-system-aarch64
           - target: x86_64-unknown-uefi
-            qemu: qemu-system-x86_64
+            qemu: qemu-system-x86-64
 
     runs-on: ubuntu-latest
     steps:
