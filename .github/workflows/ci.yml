@@ -11,8 +11,9 @@ env:
 
 jobs:
   fmt:
+    name: Cargo fmt
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
       - uses: FrancisRussell/ferrous-actions@v0.1.0-beta.2
@@ -32,6 +33,7 @@ jobs:
           args: --check
 
   build:
+    name: Cargo build, test, and clippy
     strategy:
       fail-fast: false
       matrix:
