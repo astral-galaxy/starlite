@@ -1,6 +1,6 @@
 # 🌠 Starlight
 
-Starlight is a simple, lightweight, and fast UEFI bootloader for UEFI-compliant operating systems. It's also the bootloader for the [Astral Operating System](https://github.com/astral-galaxy/astral). It is written in Rust and is designed to be easy to use and extend.
+Starlight is a simple, lightweight, and fast bootloader for UEFI-compliant operating systems. It's also the bootloader for the [Astral Operating System](https://github.com/astral-galaxy/astral). It is written in Rust and is designed to be easy to use and extend.
 
 ## Features
 
