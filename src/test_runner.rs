@@ -1,7 +1,8 @@
+use std::panic::set_hook as set_panic_hook;
+
 use uefi::Status;
 
 use crate::{panic_handler, setup_uefi, shutdown};
-use std::panic::set_hook as set_panic_hook;
 
 pub fn runner(tests: &[&dyn Fn()]) {
     setup_uefi();
