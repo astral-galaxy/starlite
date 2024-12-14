@@ -1,5 +1,10 @@
 #![feature(uefi_std, never_type)]
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::test_runner::runner)]
+#![reexport_test_harness_main = "test_main"]
+
 use std::os::uefi as uefi_std;
+use std::panic::{PanicHookInfo, set_hook as set_panic_hook};
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use thiserror::Error;
@@ -11,12 +16,15 @@ use uefi::{Handle, Status};
 /// to prevent access to the UEFI environment before it has been initialized.
 static INITIALIZED: AtomicBool = AtomicBool::new(false);
 
+#[cfg(test)]
+mod test_runner;
+
 #[derive(Error, Debug)]
 enum InitializationError {}
 
 /// Runs the required setup for the UEFI crate. This function will panic if the
 /// UEFI environment has already been initialized.
-fn setup_uefi() {
+pub(crate) fn setup_uefi() {
     // Check if the INITIALIZED flag is set and panic if it is.
     if INITIALIZED.swap(true, Ordering::AcqRel) {
         panic!("The UEFI environment has already been initialized.");
@@ -44,8 +52,33 @@ pub(crate) fn is_initialized() -> bool {
     INITIALIZED.load(Ordering::Acquire)
 }
 
+fn shutdown(status: Status) -> ! {
+    uefi::runtime::reset(ResetType::SHUTDOWN, status, None);
+}
+
+fn panic_handler(panic_info: &PanicHookInfo) -> () {
+    println!("{panic_info}");
+    shutdown(Status::ABORTED);
+}
+
 fn main() -> Result<!, InitializationError> {
     setup_uefi();
-    println!("UEFI-Version is {}", uefi::system::uefi_revision());
-    uefi::runtime::reset(ResetType::SHUTDOWN, Status::SUCCESS, None);
+    set_panic_hook(Box::new(panic_handler));
+
+    println!("UEFI Version: {}", uefi::system::uefi_revision());
+
+    #[cfg(test)]
+    test_main();
+
+    shutdown(Status::SUCCESS);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test_case]
+    fn uefi_is_initialized() {
+        assert!(is_initialized());
+    }
 }
