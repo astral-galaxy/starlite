@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+FROM quay.io/fedora/fedora-minimal:latest
 
 LABEL maintainer="Celeste Peláez <celeste@etheryal.net>"
 LABEL dev.containers.features="common"
@@ -20,10 +20,10 @@ ENV TZ=America/New_York
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 
 RUN set -eux; \
-     microdnf install  -y --nodocs \
+     dnf5 install  -y --nodocs \
      tar gcc make git cmake clang lldb vim procps openssh-clients gzip \
-     ca-certificates gnupg tzdata llvm sudo; \
-     microdnf clean all;
+     ca-certificates gnupg tzdata llvm sudo qemu edk2-ovmf; \
+     dnf5 clean all;
 
 # Install Rust
 RUN set -eux; \
